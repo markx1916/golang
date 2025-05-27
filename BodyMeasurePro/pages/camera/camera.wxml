@@ -1,0 +1,12 @@
+<!--pages/camera/camera.wxml-->
+<view class="container">
+  <camera device-position="back" flash="off" binderror="error" style="width: 100%; height: 400px;"></camera>
+  <text class="helper-text">Align yourself in the frame and tap capture.</text>
+  <button type="primary" class="capture-btn" bindtap="takePhoto">Capture</button>
+  <!-- Image preview removed, will be shown on the measure page -->
+  <!--
+  <view wx:if="{{src}}" class="image-preview-container">
+    <image src="{{src}}" mode="aspectFit" class="preview-image"></image>
+  </view>
+  -->
+</view>
