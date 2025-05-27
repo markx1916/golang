@@ -1,0 +1,40 @@
+/* pages/index/index.wxss */
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  padding: 20rpx;
+  box-sizing: border-box;
+}
+
+.title {
+  font-size: 48rpx;
+  font-weight: bold;
+  margin-bottom: 20rpx;
+}
+
+.subtitle {
+  font-size: 32rpx;
+  color: #888;
+  margin-bottom: 80rpx;
+  text-align: center;
+}
+
+.start-button {
+  width: 80%;
+  background-color: #007aff; /* Example primary color */
+  color: white;
+  border-radius: 10rpx;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.history-button {
+  width: 80%;
+  margin-top: 20rpx;
+  background-color: #f0f0f0; /* Light grey, distinct from primary */
+  color: #333;
+  border-radius: 10rpx;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}

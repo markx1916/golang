@@ -1,0 +1,46 @@
+<!--pages/history/history.wxml-->
+<view class="container">
+  <text class="title">Measurement History</text>
+
+  <view wx:if="{{measurementHistory.length === 0}}" class="empty-message">
+    No measurements yet.
+  </view>
+
+  <scroll-view wx:else scroll-y="true" class="history-scroll">
+    <view class="history-list">
+      <view wx:for="{{measurementHistory}}" wx:key="timestamp" class="history-item">
+        <view class="item-details">
+          <text class="item-type">{{item.type}}:</text>
+          <text class="item-value">{{item.value}}</text>
+        </view>
+        <text class="item-timestamp">{{tools.formatDate(item.timestamp)}}</text>
+      </view>
+    </view>
+  </scroll-view>
+
+  <button wx:if="{{measurementHistory.length > 0}}" type="warn" class="clear-btn" bindtap="clearHistory">Clear History</button>
+</view>
+
+<wxs module="tools">
+  var formatDate = function(timestamp) {
+    if (!timestamp) return '';
+    var date = getDate(timestamp);
+    var year = date.getFullYear();
+    var month = date.getMonth() + 1;
+    var day = date.getDate();
+    var hour = date.getHours();
+    var minute = date.getMinutes();
+    var second = date.getSeconds();
+
+    return year + '-' + 
+           (month < 10 ? '0' + month : month) + '-' + 
+           (day < 10 ? '0' + day : day) + ' ' + 
+           (hour < 10 ? '0' + hour : hour) + ':' + 
+           (minute < 10 ? '0' + minute : minute) + ':' + 
+           (second < 10 ? '0' + second : second);
+  }
+
+  module.exports = {
+    formatDate: formatDate
+  }
+</wxs>
