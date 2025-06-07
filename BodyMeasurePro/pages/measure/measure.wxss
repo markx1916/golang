@@ -16,6 +16,20 @@
   border-radius: 10rpx; /* Optional: for rounded corners */
 }
 
+.status-message {
+  text-align: center;
+  padding: 10px;
+  font-size: 14px;
+  width: 100%; /* Take full width for better centering */
+  margin-bottom: 10px; /* Space below status message */
+}
+.error-message {
+  color: red;
+  background-color: #ffe0e0; /* Light red background for errors */
+  border: 1px solid red;
+  border-radius: 4px;
+}
+
 .captured-image { /* This class is now for the commented-out image, can be kept or removed */
   width: 100%;
   max-height: 400px; /* Consistent with camera view */
