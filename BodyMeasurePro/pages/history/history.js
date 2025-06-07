@@ -35,12 +35,12 @@ Page({
     // console.log('History Page: clearHistory');
     // Remove the 'measurementHistory' item from local storage.
     wx.removeStorageSync('measurementHistory');
-    
+
     // Update the page data to reflect the cleared history.
     this.setData({
       measurementHistory: []
     });
-    
+
     // Show a success toast message.
     wx.showToast({
       title: 'History cleared',

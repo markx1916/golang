@@ -1,8 +1,33 @@
 <!--pages/camera/camera.wxml-->
 <view class="container">
-  <camera device-position="back" flash="off" binderror="error" style="width: 100%; height: 400px;"></camera>
+  <view class="camera-wrapper">
+    <camera device-position="{{devicePosition}}" flash="off" binderror="error" style="width: 100%; height: 400px;"></camera>
+    <!-- Overlay for visual positioning guides -->
+    <view class="guide-overlay">
+      <!-- General body shape outline to help center the subject -->
+      <view class="guide-silhouette"></view>
+      <!-- Horizontal line for head area alignment -->
+      <view class="guide-line" style="top: 20%;"></view>
+      <!-- Horizontal line for chest area alignment -->
+      <view class="guide-line" style="top: 40%;"></view>
+      <!-- Horizontal line for waist area alignment -->
+      <view class="guide-line" style="top: 60%;"></view>
+    </view>
+  </view>
   <text class="helper-text">Align yourself in the frame and tap capture.</text>
-  <button type="primary" class="capture-btn" bindtap="takePhoto">Capture</button>
+  <view class="controls-container">
+    <button type="primary" class="capture-btn" bindtap="takePhoto">Capture</button>
+    <!-- Button to toggle between front and back camera -->
+    <button class="switch-camera-btn" bindtap="switchCamera">Switch Camera</button>
+  </view>
+  <view class="instructions-container">
+    <view class="instructions-title">Tips for Positioning:</view>
+    <view class="instructions-text">
+      - Stand straight, facing the camera directly.
+      - Ensure your body from head to mid-thigh is visible in the frame.
+      - Keep arms slightly away from your body.
+    </view>
+  </view>
   <!-- Image preview removed, will be shown on the measure page -->
   <!--
   <view wx:if="{{src}}" class="image-preview-container">
