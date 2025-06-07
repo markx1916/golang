@@ -1,12 +1,15 @@
 # BodyMeasurePro
 
 **A WeChat Mini Program to demonstrate camera-based body measurement (chest, waist, hip, neck).**
+This WeChat Mini Program is designed to help users estimate their body circumferences (chest, waist, hip, neck) using their phone's camera. It is intended for human subjects.
 
 **Note: Currently, all measurements are simulated.**
 
 ## Features
 
 *   Live camera view for image capture.
+*   Switch between front and back cameras.
+*   Visual guide lines (silhouette and horizontal lines) for positioning assistance.
 *   Simulated measurement for Chest, Waist, Hip, and Neck.
 *   Storage of measurement history (type, value, timestamp).
 *   Ability to view and clear measurement history.
@@ -14,7 +17,7 @@
 ## How to Use
 
 1.  Tap "Start Measurement" on the home page.
-2.  On the camera page, align yourself in the frame and tap "Capture".
+2.  On the camera page, use the "Switch Camera" button if needed. Align yourself using the on-screen guides for framing, then tap "Capture".
 3.  You will be taken to the "Simulated Measurement" page, where the captured image is displayed.
 4.  Tap "Measure Chest", "Measure Waist", "Measure Hip", or "Measure Neck".
 5.  A simulated measurement value (e.g., "Chest: 90cm (Simulated)") will be displayed and saved to your local history.
@@ -31,6 +34,16 @@
 *   User guidance for optimal photo capture (e.g., ensuring correct pose, distance, and lighting).
 *   Calibration tools for improved accuracy.
 *   More detailed measurement history and trends.
+
+## Tips for Best Results (Future Accuracy)
+
+While the current version uses simulated measurements, adhering to these guidelines would be important if actual image processing were implemented for accurate results:
+
+*   **Pose**: Stand upright and straight, facing the camera directly. Look forward. Relax your shoulders and keep your arms slightly away from your sides (e.g., a 15-20 degree angle).
+*   **Distance & Framing**: Position yourself so that your entire body, at least from the top of your head to your mid-thighs, is clearly visible within the frame. Avoid being too close or too far.
+*   **Clothing**: Wear form-fitting clothing. Bulky or loose clothes can significantly skew measurements.
+*   **Lighting**: Ensure you are in a well-lit area with even lighting. Avoid strong shadows or backlighting.
+*   **Background**: A plain, contrasting background is preferable.
 
 ## Project Structure
 

@@ -35,7 +35,7 @@ Page({
       });
       // Optionally, navigate back if no image is provided,
       // or display a placeholder image.
-      // wx.navigateBack(); 
+      // wx.navigateBack();
     }
   },
 
@@ -47,7 +47,7 @@ Page({
   saveMeasurement: function(type, value) {
     // Retrieve existing history or initialize an empty array if none exists.
     let history = wx.getStorageSync('measurementHistory') || [];
-    
+
     const newMeasurement = {
       type: type,                         // e.g., "Chest"
       value: value,                       // e.g., "90cm (Simulated)"
@@ -55,11 +55,11 @@ Page({
     };
 
     // Add the new measurement to the beginning of the history array.
-    history.unshift(newMeasurement); 
-    
+    history.unshift(newMeasurement);
+
     // Save the updated history array back to local storage.
     wx.setStorageSync('measurementHistory', history);
-    
+
     // Update the page data to display the current measurement result.
     this.setData({
       measurementResult: `${type}: ${value}`

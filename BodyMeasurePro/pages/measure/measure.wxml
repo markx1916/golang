@@ -1,7 +1,7 @@
 <!--pages/measure/measure.wxml-->
 <view class="container">
   <image wx:if="{{imagePath}}" src="{{imagePath}}" mode="aspectFit" class="captured-image"></image>
-  
+
   <text class="section-title">Measurement Options</text>
   <view class="button-group">
     <button type="default" class="measure-btn" bindtap="measureChest">Measure Chest</button>

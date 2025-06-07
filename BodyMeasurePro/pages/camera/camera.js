@@ -8,7 +8,18 @@ Page({
    * Page initial data.
    */
   data: {
-    src: "" // This was for local image preview, now unused as image is passed to measure page.
+    src: "", // This was for local image preview, now unused as image is passed to measure page.
+    devicePosition: 'back' // 'front' or 'back'
+  },
+
+  /**
+   * Switches between the front and back camera.
+   */
+  switchCamera() {
+    this.setData({
+      devicePosition: this.data.devicePosition === 'back' ? 'front' : 'back'
+    });
+    // console.log('Switched camera to:', this.data.devicePosition);
   },
 
   /**
