@@ -3,12 +3,16 @@
  * Index Page: The main entry point of the application.
  * Provides navigation to the camera page for starting measurements and to the history page.
  */
+const app = getApp(); // Get the app instance for accessing globalData and methods
+
 Page({
   /**
    * Page initial data.
-   * Not much data is needed for this simple static navigation page.
+   * - lang: Object to store localized strings for the page.
    */
-  data: {},
+  data: {
+    lang: {}
+  },
 
   /**
    * Navigates to the camera page.
@@ -31,6 +35,34 @@ Page({
   },
 
   /**
+   * Loads localized strings into page data.
+   * Also updates the navigation bar title.
+   */
+  loadLangData: function() {
+    this.setData({
+      lang: app.globalData.locales
+    });
+    const navBarTitle = app.globalData.locales.index_title || 'Body Measurement Tool';
+    wx.setNavigationBarTitle({
+      title: navBarTitle
+    });
+  },
+
+  /**
+   * Handles language switching.
+   * Called when a language switch button is tapped.
+   * @param {Object} e - The event object, containing the new language code in e.currentTarget.dataset.lang.
+   */
+  switchLanguage: function(e) {
+    const newLang = e.currentTarget.dataset.lang;
+    if (newLang && newLang !== app.globalData.language) {
+      // console.log('Switching language to:', newLang);
+      app.setLanguage(newLang);
+      // loadLangData will be called by app.setLanguage via currentPage.loadLangData()
+    }
+  },
+
+  /**
    * Lifecycle function--Called when page load.
    */
   onLoad: function(options) {
@@ -46,9 +78,11 @@ Page({
 
   /**
    * Lifecycle function--Called when page show.
+   * Loads language data when the page is shown.
    */
   onShow: function() {
     // console.log('Index Page: onShow');
+    this.loadLangData(); // Load language data every time the page is shown
   },
 
   /**

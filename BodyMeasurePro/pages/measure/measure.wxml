@@ -1,17 +1,19 @@
 <!--pages/measure/measure.wxml-->
 <view class="container">
-  <image wx:if="{{imagePath}}" src="{{imagePath}}" mode="aspectFit" class="captured-image"></image>
+  <!-- <image wx:if="{{imagePath}}" src="{{imagePath}}" mode="aspectFit" class="captured-image"></image> -->
+  <!-- Canvas for displaying the captured image and drawing measurement indicator lines -->
+  <canvas canvas-id="measureCanvas" id="measureCanvas" class="measure-canvas" style="width: 100%; height: 400px;"></canvas>
 
-  <text class="section-title">Measurement Options</text>
+  <text class="section-title">{{lang.measure_options_title || 'Measurement Options'}}</text>
   <view class="button-group">
-    <button type="default" class="measure-btn" bindtap="measureChest">Measure Chest</button>
-    <button type="default" class="measure-btn" bindtap="measureWaist">Measure Waist</button>
-    <button type="default" class="measure-btn" bindtap="measureHip">Measure Hip</button>
-    <button type="default" class="measure-btn" bindtap="measureNeck">Measure Neck</button>
+    <button type="default" class="measure-btn" bindtap="measureChest" disabled="{{!imageLoaded}}">{{lang.measure_chest_btn || 'Measure Chest'}}</button>
+    <button type="default" class="measure-btn" bindtap="measureWaist" disabled="{{!imageLoaded}}">{{lang.measure_waist_btn || 'Measure Waist'}}</button>
+    <button type="default" class="measure-btn" bindtap="measureHip" disabled="{{!imageLoaded}}">{{lang.measure_hip_btn || 'Measure Hip'}}</button>
+    <button type="default" class="measure-btn" bindtap="measureNeck" disabled="{{!imageLoaded}}">{{lang.measure_neck_btn || 'Measure Neck'}}</button>
   </view>
 
   <view wx:if="{{measurementResult}}" class="result-section">
-    <text class="section-title result-title">Result</text>
-    <text class="result-text">{{measurementResult}}</text>
+    <text class="section-title result-title">{{lang.measure_result_title || 'Result'}}</text>
+    <text class="result-text">{{measurementResult}}</text> <!-- measurementResult is already localized in JS -->
   </view>
 </view>

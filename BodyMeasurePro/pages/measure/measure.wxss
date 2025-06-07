@@ -7,7 +7,16 @@
   box-sizing: border-box;
 }
 
-.captured-image {
+.measure-canvas { /* Added for the canvas element */
+  width: 100%; /* Matches inline style in WXML */
+  height: 400px; /* Matches inline style in WXML */
+  background-color: #f0f0f0; /* Placeholder color before image loads */
+  margin-bottom: 20rpx; /* Spacing similar to old image */
+  border: 1px solid #eee; /* Optional: if you want a border */
+  border-radius: 10rpx; /* Optional: for rounded corners */
+}
+
+.captured-image { /* This class is now for the commented-out image, can be kept or removed */
   width: 100%;
   max-height: 400px; /* Consistent with camera view */
   margin-bottom: 30rpx;

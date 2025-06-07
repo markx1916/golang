@@ -1,0 +1,41 @@
+{
+  "appName": "BodyMeasurePro",
+  "index_title": "Body Measurement Tool",
+  "index_start_measurement_btn": "Start Measurement",
+  "index_view_history_btn": "View History",
+  "index_switch_to_chinese_btn": "中文",
+  "index_switch_to_english_btn": "English",
+
+  "camera_nav_title": "Camera",
+  "camera_capture_btn": "Capture",
+  "camera_switch_camera_btn": "Switch Camera",
+  "camera_helper_text": "Align yourself in the frame and tap capture.",
+  "camera_positioning_title": "Tips for Positioning:",
+  "camera_positioning_tip1": "- Stand straight, facing the camera directly.",
+  "camera_positioning_tip2": "- Ensure your body from head to mid-thigh is visible in the frame.",
+  "camera_positioning_tip3": "- Keep arms slightly away from your body.",
+  "camera_error_toast": "Camera Error",
+  "camera_capture_failed_toast": "Capture Failed",
+
+
+  "measure_nav_title": "Simulated Measurement",
+  "measure_chest_btn": "Measure Chest",
+  "measure_waist_btn": "Measure Waist",
+  "measure_hip_btn": "Measure Hip",
+  "measure_neck_btn": "Measure Neck",
+  "measure_options_title": "Measurement Options",
+  "measure_result_title": "Result",
+  "measure_simulated_value_suffix": "(Simulated)",
+  "measure_error_no_image_toast": "Error: No image",
+
+  "history_nav_title": "History",
+  "history_title": "Measurement History",
+  "history_no_measurements": "No measurements yet.",
+  "history_clear_btn": "Clear History",
+  "history_cleared_toast": "History cleared",
+
+  "measurement_chest": "Chest",
+  "measurement_waist": "Waist",
+  "measurement_hip": "Hip",
+  "measurement_neck": "Neck"
+}

@@ -1,6 +1,11 @@
 <view class="container">
-  <text class="title">BodyMeasurePro</text>
+  <view class="lang-switcher">
+    <button size="mini" data-lang="en" bindtap="switchLanguage">{{lang.index_switch_to_english_btn || 'English'}}</button>
+    <button size="mini" data-lang="zh" bindtap="switchLanguage">{{lang.index_switch_to_chinese_btn || '中文'}}</button>
+  </view>
+  <text class="title">{{lang.appName || 'BodyMeasurePro'}}</text>
   <text class="subtitle">Your personal body measurement assistant</text>
-  <button type="primary" class="start-button" bindtap="goToCamera">Start Measurement</button>
-  <button type="default" class="history-button" bindtap="goToHistory">View History</button>
+  <!-- Subtitle can also be localized if added to json files -->
+  <button type="primary" class="start-button" bindtap="goToCamera">{{lang.index_start_measurement_btn || 'Start Measurement'}}</button>
+  <button type="default" class="history-button" bindtap="goToHistory">{{lang.index_view_history_btn || 'View History'}}</button>
 </view>
