@@ -3,13 +3,16 @@
  * Camera Page: Handles camera interaction for capturing images.
  * Users can take a photo which is then passed to the measure page.
  */
+const app = getApp(); // Get the app instance
+
 Page({
   /**
    * Page initial data.
    */
   data: {
     src: "", // This was for local image preview, now unused as image is passed to measure page.
-    devicePosition: 'back' // 'front' or 'back'
+    devicePosition: 'back', // 'front' or 'back'
+    lang: {} // For storing localized strings
   },
 
   /**
@@ -50,7 +53,7 @@ Page({
       fail: (err) => {
         console.error('Photo capture failed:', err);
         wx.showToast({
-          title: 'Capture Failed',
+          title: app.globalData.locales.camera_capture_failed_toast || 'Capture Failed',
           icon: 'none',
           duration: 2000
         });
@@ -65,9 +68,23 @@ Page({
   error(e) {
     console.error('Camera error:', e.detail);
     wx.showToast({
-      title: 'Camera Error',
+      title: app.globalData.locales.camera_error_toast || 'Camera Error',
       icon: 'none',
       duration: 2000
+    });
+  },
+
+  /**
+   * Loads localized strings into page data.
+   * Also updates the navigation bar title.
+   */
+  loadLangData: function() {
+    this.setData({
+      lang: app.globalData.locales
+    });
+    const navBarTitle = app.globalData.locales.camera_nav_title || 'Camera';
+    wx.setNavigationBarTitle({
+      title: navBarTitle
     });
   },
 
@@ -80,9 +97,11 @@ Page({
 
   /**
    * Lifecycle function--Called when page show.
+   * Loads language data when the page is shown.
    */
   onShow: function () {
     // console.log('Camera Page: onShow');
+    this.loadLangData();
   },
 
   /**
@@ -118,8 +137,10 @@ Page({
    */
   onShareAppMessage: function () {
     // console.log('Camera Page: onShareAppMessage');
+    // Use localized appName if available for the shared message title
+    const appName = app.globalData.locales.appName || 'BodyMeasurePro';
     return {
-      title: 'Capture Measurement Photo - BodyMeasurePro',
+      title: `${app.globalData.locales.camera_nav_title || 'Camera'} - ${appName}`,
       path: '/pages/camera/camera'
     }
   }

@@ -1,154 +1,213 @@
 // pages/measure/measure.js
 /**
- * Measure Page: Displays the captured image and allows users to trigger
- * simulated body measurements. Results are displayed and saved to local history.
+ * Measure Page: Displays the captured image on a canvas and allows users to trigger
+ * simulated body measurements with visual indicators. Results are displayed and saved.
  */
+const app = getApp(); // Get the app instance
+
 Page({
   /**
    * Page initial data.
-   * - imagePath: Path to the captured image, passed from the camera page.
-   * - measurementResult: String to display the latest measurement result.
    */
   data: {
-    imagePath: '',          // Stores the path of the image captured by the camera
-    measurementResult: ''   // Stores the string representation of the latest measurement
+    imagePath: '',
+    measurementResult: '',
+    lang: {},
+    imageLoaded: false, // Flag to enable measurement buttons
+    originalImageWidth: 0,  // Original width of the loaded image
+    originalImageHeight: 0, // Original height of the loaded image
+    canvasDrawWidth: 300,   // Calculated width for drawing image on canvas (maintaining aspect ratio)
+    canvasDrawHeight: 400,  // Calculated height for drawing image on canvas (maintaining aspect ratio)
+    canvasOffsetX: 0,       // X-offset for centering image on canvas
+    canvasOffsetY: 0,       // Y-offset for centering image on canvas
+    lastMeasurementTypeKey: null, // Stores the typeKey of the last measurement for re-localization
+    lastMeasurementRawValue: null // Stores the raw value of the last measurement for re-localization
   },
+  canvasCtx: null, // Stores the canvas rendering context
 
   /**
    * Lifecycle function--Called when page load.
-   * Retrieves the imagePath from the navigation options.
-   * If no imagePath is found, logs an error and shows a toast.
-   * @param {Object} options - Options passed during navigation, expecting options.imagePath.
    */
   onLoad: function (options) {
-    // console.log('Measure Page: onLoad', options);
+    this.canvasCtx = wx.createCanvasContext('measureCanvas');
     if (options.imagePath) {
-      this.setData({
-        imagePath: options.imagePath
-      });
+      // this.setData({ imagePath: options.imagePath }); // Store imagePath - path is in this.data.imagePath
+      this.loadImageOntoCanvas(options.imagePath);
     } else {
       console.error("No imagePath passed to measure page");
-      wx.showToast({
-        title: 'Error: No image',
-        icon: 'none',
-        duration: 2000
+      const errTitle = (app.globalData.locales && app.globalData.locales.measure_error_no_image_toast)
+                       ? app.globalData.locales.measure_error_no_image_toast
+                       : 'Error: No image';
+      wx.showToast({ title: errTitle, icon: 'none', duration: 2000 });
+    }
+  },
+
+  /**
+   * Loads the captured image onto the canvas.
+   * Calculates dimensions to fit the image while maintaining aspect ratio.
+   * @param {string} path - The file path of the image to load.
+   */
+  loadImageOntoCanvas(path) {
+    const ctx = this.canvasCtx;
+
+    // Get actual canvas dimensions from the DOM for accurate calculations
+    wx.createSelectorQuery().select('#measureCanvas').boundingClientRect(rect => {
+      if (!rect) {
+        console.error("Canvas element not found for sizing.");
+        wx.showToast({ title: 'Canvas Error', icon: 'none'}); // Consider localizing this
+        return;
+      }
+      const canvasActualDisplayWidth = rect.width;
+      const canvasActualDisplayHeight = rect.height;
+
+      wx.getImageInfo({
+        src: path,
+        success: (res) => {
+          let drawWidth, drawHeight, offsetX = 0, offsetY = 0;
+          const imgAspectRatio = res.width / res.height;
+          const canvasAspectRatio = canvasActualDisplayWidth / canvasActualDisplayHeight;
+
+          if (imgAspectRatio > canvasAspectRatio) {
+            drawWidth = canvasActualDisplayWidth;
+            drawHeight = canvasActualDisplayWidth / imgAspectRatio;
+            offsetY = (canvasActualDisplayHeight - drawHeight) / 2;
+          } else {
+            drawHeight = canvasActualDisplayHeight;
+            drawWidth = canvasActualDisplayHeight * imgAspectRatio;
+            offsetX = (canvasActualDisplayWidth - drawWidth) / 2;
+          }
+
+          this.setData({
+            originalImageWidth: res.width, originalImageHeight: res.height,
+            canvasDrawWidth: drawWidth, canvasDrawHeight: drawHeight,
+            canvasOffsetX: offsetX, canvasOffsetY: offsetY,
+            imagePath: path // Ensure imagePath is set in data for redraws
+          });
+
+          ctx.drawImage(path, offsetX, offsetY, drawWidth, drawHeight);
+          ctx.draw();
+          this.setData({ imageLoaded: true });
+        },
+        fail: (err) => {
+          console.error("Failed to get image info:", err);
+          // Consider localizing this toast
+          wx.showToast({ title: 'Failed to load image', icon: 'none' });
+        }
       });
-      // Optionally, navigate back if no image is provided,
-      // or display a placeholder image.
-      // wx.navigateBack();
-    }
+    }).exec();
   },
 
   /**
-   * Saves a measurement to local storage and updates the UI.
-   * @param {string} type - The type of measurement (e.g., 'Chest', 'Waist').
-   * @param {string} value - The simulated measurement value (e.g., '90cm (Simulated)').
+   * Helper function to draw a single horizontal measurement line on the canvas.
+   * It first redraws the base image to clear any previous lines.
+   * Line coordinates are relative to the drawn image's position and size on the canvas.
+   * @param {number} yFactor - Percentage down the drawn image height where the line should be placed (0.0 to 1.0).
+   * @param {number} xWidthFactorStart - Percentage from the left of the drawn image width where the line starts.
+   * @param {number} xWidthFactorEnd - Percentage from the left of the drawn image width where the line ends.
    */
-  saveMeasurement: function(type, value) {
-    // Retrieve existing history or initialize an empty array if none exists.
-    let history = wx.getStorageSync('measurementHistory') || [];
+  _drawMeasurementLine(yFactor, xWidthFactorStart = 0.1, xWidthFactorEnd = 0.9) {
+    if (!this.data.imageLoaded) return;
+    const ctx = this.canvasCtx;
 
-    const newMeasurement = {
-      type: type,                         // e.g., "Chest"
-      value: value,                       // e.g., "90cm (Simulated)"
-      timestamp: new Date().toISOString() // ISO string format for the current time
-    };
+    // Redraw the base image to clear any previously drawn lines
+    ctx.drawImage(this.data.imagePath, this.data.canvasOffsetX, this.data.canvasOffsetY, this.data.canvasDrawWidth, this.data.canvasDrawHeight);
 
-    // Add the new measurement to the beginning of the history array.
-    history.unshift(newMeasurement);
+    // Calculate line position relative to the drawn image on the canvas
+    const yPos = this.data.canvasOffsetY + this.data.canvasDrawHeight * yFactor;
+    const xStart = this.data.canvasOffsetX + this.data.canvasDrawWidth * xWidthFactorStart;
+    const xEnd = this.data.canvasOffsetX + this.data.canvasDrawWidth * xWidthFactorEnd;
 
-    // Save the updated history array back to local storage.
-    wx.setStorageSync('measurementHistory', history);
+    ctx.setStrokeStyle('rgba(255, 0, 0, 0.8)');
+    ctx.setLineWidth(3);
+    ctx.beginPath();
+    ctx.moveTo(xStart, yPos);
+    ctx.lineTo(xEnd, yPos);
+    ctx.stroke();
+    ctx.draw(true); // `true` indicates additive drawing (draws over the previous image)
+  },
 
-    // Update the page data to display the current measurement result.
+  /**
+   * Helper function to finalize a measurement:
+   * - Constructs the localized result string.
+   * - Updates page data (measurementResult, lastMeasurementTypeKey, lastMeasurementRawValue).
+   * - Saves the measurement data (typeKey, rawValue, timestamp) to local history.
+   * @param {string} typeKey - The locale key for the measurement type.
+   * @param {string} rawValue - The raw simulated value of the measurement.
+   */
+  _finalizeMeasurement(typeKey, rawValue) {
+    const measurementType = app.globalData.locales[typeKey] || typeKey.replace('measurement_', ''); // Fallback for key
+    const suffix = app.globalData.locales.measure_simulated_value_suffix || '(Simulated)'; // Fallback for suffix
+    const resultString = `${measurementType}: ${rawValue}cm ${suffix}`;
+
     this.setData({
-      measurementResult: `${type}: ${value}`
+      measurementResult: resultString,
+      lastMeasurementTypeKey: typeKey,
+      lastMeasurementRawValue: rawValue
     });
-    // console.log('Measurement saved:', newMeasurement);
+
+    let history = wx.getStorageSync('measurementHistory') || [];
+    const measurementData = {
+      typeKey: typeKey, value: rawValue, timestamp: new Date().toISOString()
+    };
+    history.unshift(measurementData);
+    wx.setStorageSync('measurementHistory', history);
   },
 
-  /**
-   * Simulates measuring the chest.
-   * IMPORTANT: This is a placeholder and does not perform actual image analysis.
-   */
   measureChest: function() {
-    this.saveMeasurement('Chest', '90cm (Simulated)');
+    if (!this.data.imageLoaded) return; // Check if image is loaded before drawing
+    this._drawMeasurementLine(0.45); // Draw chest indicator line
+    this._finalizeMeasurement('measurement_chest', '90'); // Finalize and save
   },
 
-  /**
-   * Simulates measuring the waist.
-   * IMPORTANT: This is a placeholder and does not perform actual image analysis.
-   */
   measureWaist: function() {
-    this.saveMeasurement('Waist', '75cm (Simulated)');
+    if (!this.data.imageLoaded) return;
+    this._drawMeasurementLine(0.60); // Draw waist indicator line
+    this._finalizeMeasurement('measurement_waist', '75');
   },
 
-  /**
-   * Simulates measuring the hip.
-   * IMPORTANT: This is a placeholder and does not perform actual image analysis.
-   */
   measureHip: function() {
-    this.saveMeasurement('Hip', '95cm (Simulated)');
+    if (!this.data.imageLoaded) return;
+    this._drawMeasurementLine(0.70); // Draw hip indicator line
+    this._finalizeMeasurement('measurement_hip', '95');
   },
 
-  /**
-   * Simulates measuring the neck.
-   * IMPORTANT: This is a placeholder and does not perform actual image analysis.
-   */
   measureNeck: function() {
-    this.saveMeasurement('Neck', '38cm (Simulated)');
+    if (!this.data.imageLoaded) return;
+    this._drawMeasurementLine(0.25, 0.3, 0.7); // Draw neck indicator line (shorter)
+    this._finalizeMeasurement('measurement_neck', '38');
   },
 
   /**
-   * Lifecycle function--Called when page is initially rendered.
+   * Loads localized strings into page data.
+   * Also updates the navigation bar title and re-localizes the current measurement result if one exists.
    */
-  onReady: function () {
-    // console.log('Measure Page: onReady');
-  },
+  loadLangData: function() {
+    this.setData({ lang: app.globalData.locales });
+    const navBarTitle = (app.globalData.locales && app.globalData.locales.measure_nav_title)
+                        ? app.globalData.locales.measure_nav_title
+                        : 'Simulated Measurement';
+    wx.setNavigationBarTitle({ title: navBarTitle });
 
-  /**
-   * Lifecycle function--Called when page show.
-   */
-  onShow: function () {
-    // console.log('Measure Page: onShow');
-  },
-
-  /**
-   * Lifecycle function--Called when page hide.
-   */
-  onHide: function () {
-    // console.log('Measure Page: onHide');
-  },
-
-  /**
-   * Lifecycle function--Called when page unload.
-   */
-  onUnload: function () {
-    // console.log('Measure Page: onUnload');
-  },
-
-  /**
-   * Page event handler function--Called when user drop down.
-   */
-  onPullDownRefresh: function () {
-    // console.log('Measure Page: onPullDownRefresh');
-  },
-
-  /**
-   * Called when page reach bottom.
-   */
-  onReachBottom: function () {
-    // console.log('Measure Page: onReachBottom');
-  },
-
-  /**
-   * Called when user click on the top right corner to share.
-   */
-  onShareAppMessage: function () {
-    // console.log('Measure Page: onShareAppMessage');
-    return {
-      title: 'Simulated Body Measurement - BodyMeasurePro',
-      path: `/pages/measure/measure?imagePath=${this.data.imagePath}` // Share with current image
+    // If a measurement result is already displayed, re-localize it
+    if (this.data.measurementResult && this.data.lastMeasurementTypeKey && this.data.lastMeasurementRawValue) {
+        const measurementType = app.globalData.locales[this.data.lastMeasurementTypeKey] || this.data.lastMeasurementTypeKey.replace('measurement_', '');
+        const suffix = app.globalData.locales.measure_simulated_value_suffix || '(Simulated)';
+        const resultString = `${measurementType}: ${this.data.lastMeasurementRawValue}cm ${suffix}`;
+        this.setData({ measurementResult: resultString });
     }
+  },
+
+  onShow: function () {
+    this.loadLangData(); // Load language data every time page is shown
+  },
+  onReady: function () {},
+  onHide: function () {},
+  onUnload: function () {},
+  onPullDownRefresh: function () {},
+  onReachBottom: function () {},
+  onShareAppMessage: function () {
+    const appName = (app.globalData.locales && app.globalData.locales.appName) ? app.globalData.locales.appName : 'BodyMeasurePro';
+    const pageTitle = (app.globalData.locales && app.globalData.locales.measure_nav_title) ? app.globalData.locales.measure_nav_title : 'Simulated Measurement';
+    return { title: `${pageTitle} - ${appName}`, path: `/pages/measure/measure?imagePath=${this.data.imagePath}` };
   }
 })

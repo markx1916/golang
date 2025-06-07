@@ -29,22 +29,52 @@
   justify-content: center;
 }
 
-.guide-silhouette {
-  width: 50%; /* Adjust percentage for desired width */
-  height: 80%; /* Adjust percentage for desired height */
-  border: 2px dashed rgba(255, 255, 255, 0.7); /* Dashed white line */
-  border-radius: 30px / 100px; /* More elliptical for body shape */
-  box-sizing: border-box;
-}
+/* Removed .guide-silhouette style as it's no longer used */
 
 .guide-line {
   position: absolute;
-  left: 25%; /* Aligns with silhouette if it's 50% wide and centered */
-  right: 25%; /* Aligns with silhouette */
-  height: 2px;
-  background-color: rgba(255, 255, 255, 0.7);
-  /* The 'top' property will be set inline for each line in WXML */
+  background-color: rgba(255, 255, 255, 0.7); /* Default: semi-transparent white */
+  pointer-events: none;
 }
+
+.vertical-line {
+  width: 2px;
+  top: 10%;
+  bottom: 10%;
+}
+.central-line {
+  background-color: rgba(255, 255, 0, 0.7); /* Yellow for central line */
+  width: 1px;
+  top: 5%;
+  bottom: 5%;
+}
+
+.horizontal-line {
+  height: 2px;
+  left: 20%;
+  right: 20%;
+}
+
+/* Optional: different colors or styles for different lines if desired */
+.neck-line { /* background-color: rgba(255, 100, 100, 0.7); */ }
+.chest-line { /* background-color: rgba(100, 255, 100, 0.7); */ }
+.waist-line { /* background-color: rgba(100, 100, 255, 0.7); */ }
+.hip-line { /* background-color: rgba(255, 255, 100, 0.7); */ }
+
+.guide-text {
+    position: absolute;
+    left: 5%; /* Position text to the left of the lines */
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 10px;
+    background-color: rgba(0, 0, 0, 0.3); /* Slight background for readability */
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+/* Adjust top positions to align with their respective lines */
+.neck-text { top: calc(28% - 8px); }
+.chest-text { top: calc(42% - 8px); }
+.waist-text { top: calc(62% - 8px); }
+.hip-text { top: calc(72% - 8px); }
 
 .helper-text {
   font-size: 28rpx;

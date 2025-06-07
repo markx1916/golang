@@ -4,28 +4,35 @@
     <camera device-position="{{devicePosition}}" flash="off" binderror="error" style="width: 100%; height: 400px;"></camera>
     <!-- Overlay for visual positioning guides -->
     <view class="guide-overlay">
-      <!-- General body shape outline to help center the subject -->
-      <view class="guide-silhouette"></view>
-      <!-- Horizontal line for head area alignment -->
-      <view class="guide-line" style="top: 20%;"></view>
-      <!-- Horizontal line for chest area alignment -->
-      <view class="guide-line" style="top: 40%;"></view>
-      <!-- Horizontal line for waist area alignment -->
-      <view class="guide-line" style="top: 60%;"></view>
+      <view class="guide-line vertical-line" style="left: 30%;"></view> <!-- Left torso line -->
+      <view class="guide-line vertical-line" style="left: 70%;"></view> <!-- Right torso line -->
+      <view class="guide-line vertical-line central-line" style="left: 50%;"></view> <!-- Central centering line -->
+
+      <view class="guide-line horizontal-line neck-line" style="top: 28%;"></view>
+      <view class="guide-text neck-text">{{lang.camera_guide_neck || 'Neck'}}</view>
+
+      <view class="guide-line horizontal-line chest-line" style="top: 42%;"></view>
+      <view class="guide-text chest-text">{{lang.camera_guide_chest || 'Chest'}}</view>
+
+      <view class="guide-line horizontal-line waist-line" style="top: 62%;"></view>
+      <view class="guide-text waist-text">{{lang.camera_guide_waist || 'Waist'}}</view>
+
+      <view class="guide-line horizontal-line hip-line" style="top: 72%;"></view>
+      <view class="guide-text hip-text">{{lang.camera_guide_hip || 'Hip'}}</view>
     </view>
   </view>
-  <text class="helper-text">Align yourself in the frame and tap capture.</text>
+  <text class="helper-text">{{lang.camera_helper_text || 'Align yourself in the frame and tap capture.'}}</text>
   <view class="controls-container">
-    <button type="primary" class="capture-btn" bindtap="takePhoto">Capture</button>
+    <button type="primary" class="capture-btn" bindtap="takePhoto">{{lang.camera_capture_btn || 'Capture'}}</button>
     <!-- Button to toggle between front and back camera -->
-    <button class="switch-camera-btn" bindtap="switchCamera">Switch Camera</button>
+    <button class="switch-camera-btn" bindtap="switchCamera">{{lang.camera_switch_camera_btn || 'Switch Camera'}}</button>
   </view>
   <view class="instructions-container">
-    <view class="instructions-title">Tips for Positioning:</view>
+    <view class="instructions-title">{{lang.camera_positioning_title || 'Tips for Positioning:'}}</view>
     <view class="instructions-text">
-      - Stand straight, facing the camera directly.
-      - Ensure your body from head to mid-thigh is visible in the frame.
-      - Keep arms slightly away from your body.
+      {{lang.camera_positioning_tip1 || '- Stand straight, facing the camera directly.'}}
+      {{'\n' + (lang.camera_positioning_tip2 || '- Ensure your body from head to mid-thigh is visible in the frame.')}}
+      {{'\n' + (lang.camera_positioning_tip3 || '- Keep arms slightly away from your body.')}}
     </view>
   </view>
   <!-- Image preview removed, will be shown on the measure page -->

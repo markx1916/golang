@@ -7,6 +7,20 @@
   height: 100vh;
   padding: 20rpx;
   box-sizing: border-box;
+  position: relative; /* For positioning lang-switcher if needed */
+}
+
+.lang-switcher {
+  position: absolute;
+  top: 20rpx;
+  right: 20rpx;
+  display: flex;
+}
+
+.lang-switcher button {
+  margin-left: 10rpx;
+  font-size: 24rpx; /* smaller font for mini buttons */
+  padding: 5rpx 10rpx;
 }
 
 .title {

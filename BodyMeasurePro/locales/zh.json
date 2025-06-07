@@ -1,0 +1,40 @@
+{
+  "appName": "体测专家",
+  "index_title": "身体测量工具",
+  "index_start_measurement_btn": "开始测量",
+  "index_view_history_btn": "查看历史",
+  "index_switch_to_chinese_btn": "中文",
+  "index_switch_to_english_btn": "English",
+
+  "camera_nav_title": "相机",
+  "camera_capture_btn": "拍摄",
+  "camera_switch_camera_btn": "切换相机",
+  "camera_helper_text": "请将身体对准取景框后点击拍摄。",
+  "camera_positioning_title": "姿势提示:",
+  "camera_positioning_tip1": "- 身体站直，正对相机。",
+  "camera_positioning_tip2": "- 确保从头到大腿中部都可见。",
+  "camera_positioning_tip3": "- 手臂稍稍离开身体。",
+  "camera_error_toast": "相机错误",
+  "camera_capture_failed_toast": "拍摄失败",
+
+  "measure_nav_title": "模拟测量",
+  "measure_chest_btn": "测量胸围",
+  "measure_waist_btn": "测量腰围",
+  "measure_hip_btn": "测量臀围",
+  "measure_neck_btn": "测量颈围",
+  "measure_options_title": "测量选项",
+  "measure_result_title": "测量结果",
+  "measure_simulated_value_suffix": "(模拟值)",
+  "measure_error_no_image_toast": "错误：无图像",
+
+  "history_nav_title": "历史记录",
+  "history_title": "测量历史",
+  "history_no_measurements": "暂无测量记录。",
+  "history_clear_btn": "清除历史",
+  "history_cleared_toast": "历史已清除",
+
+  "measurement_chest": "胸围",
+  "measurement_waist": "腰围",
+  "measurement_hip": "臀围",
+  "measurement_neck": "颈围"
+}

@@ -1,24 +1,32 @@
 <!--pages/history/history.wxml-->
 <view class="container">
-  <text class="title">Measurement History</text>
+  <text class="title">{{lang.history_title || 'Measurement History'}}</text>
 
   <view wx:if="{{measurementHistory.length === 0}}" class="empty-message">
-    No measurements yet.
+    {{lang.history_no_measurements || 'No measurements yet.'}}
   </view>
 
   <scroll-view wx:else scroll-y="true" class="history-scroll">
     <view class="history-list">
+      <!--
+        Loop through saved measurement history.
+        item.typeKey stores the localization key (e.g., "measurement_chest").
+        lang[item.typeKey] dynamically fetches the translated string.
+        item.value is the raw numerical value.
+        lang.measure_simulated_value_suffix adds the localized "(Simulated)" text.
+        tools.formatDate is a WXS script for date formatting.
+       -->
       <view wx:for="{{measurementHistory}}" wx:key="timestamp" class="history-item">
         <view class="item-details">
-          <text class="item-type">{{item.type}}:</text>
-          <text class="item-value">{{item.value}}</text>
+          <text class="item-type">{{lang[item.typeKey] || item.typeKey}}:</text>
+          <text class="item-value">{{item.value}}cm {{lang.measure_simulated_value_suffix || '(Simulated)'}}</text>
         </view>
         <text class="item-timestamp">{{tools.formatDate(item.timestamp)}}</text>
       </view>
     </view>
   </scroll-view>
 
-  <button wx:if="{{measurementHistory.length > 0}}" type="warn" class="clear-btn" bindtap="clearHistory">Clear History</button>
+  <button wx:if="{{measurementHistory.length > 0}}" type="warn" class="clear-btn" bindtap="clearHistory">{{lang.history_clear_btn || 'Clear History'}}</button>
 </view>
 
 <wxs module="tools">
