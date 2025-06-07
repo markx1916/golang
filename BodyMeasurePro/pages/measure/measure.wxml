@@ -4,12 +4,24 @@
   <!-- Canvas for displaying the captured image and drawing measurement indicator lines -->
   <canvas canvas-id="measureCanvas" id="measureCanvas" class="measure-canvas" style="width: 100%; height: 400px;"></canvas>
 
+  <!-- Display VisionKit status/error messages. wx.showLoading is used for 'detecting...' -->
+  <view wx:if="{{visionKitUserMessage && !visionKitDetectionInProgress}}" class="status-message {{visionKitError ? 'error-message' : ''}}">
+    {{visionKitUserMessage}}
+  </view>
+
+  <!-- TF.js related messages (can be removed if TF.js is fully deprecated) -->
+  <view wx:if="{{modelLoading && !visionKitReady}}" class="status-message">{{lang.model_loading_message || 'Loading analysis model...'}}</view>
+  <view wx:if="{{modelLoadError && !visionKitReady}}" class="status-message error-message">{{lang.model_load_error_message || 'Model failed to load. Measurement lines will be static.'}}</view>
+  <!-- poseEstimationInProgress is generic, but wx.showLoading is preferred for active analysis. This could be for TF's own analysis. -->
+  <view wx:if="{{poseEstimationInProgress && !visionKitDetectionInProgress && !modelLoading}}" class="status-message">{{lang.pose_estimation_message || 'Analyzing pose...'}}</view>
+
+
   <text class="section-title">{{lang.measure_options_title || 'Measurement Options'}}</text>
   <view class="button-group">
-    <button type="default" class="measure-btn" bindtap="measureChest" disabled="{{!imageLoaded}}">{{lang.measure_chest_btn || 'Measure Chest'}}</button>
-    <button type="default" class="measure-btn" bindtap="measureWaist" disabled="{{!imageLoaded}}">{{lang.measure_waist_btn || 'Measure Waist'}}</button>
-    <button type="default" class="measure-btn" bindtap="measureHip" disabled="{{!imageLoaded}}">{{lang.measure_hip_btn || 'Measure Hip'}}</button>
-    <button type="default" class="measure-btn" bindtap="measureNeck" disabled="{{!imageLoaded}}">{{lang.measure_neck_btn || 'Measure Neck'}}</button>
+    <button type="default" class="measure-btn" bindtap="measureChest" disabled="{{!imageLoaded || !visionKitReady || visionKitError || visionKitDetectionInProgress}}">{{lang.measure_chest_btn || 'Measure Chest'}}</button>
+    <button type="default" class="measure-btn" bindtap="measureWaist" disabled="{{!imageLoaded || !visionKitReady || visionKitError || visionKitDetectionInProgress}}">{{lang.measure_waist_btn || 'Measure Waist'}}</button>
+    <button type="default" class="measure-btn" bindtap="measureHip" disabled="{{!imageLoaded || !visionKitReady || visionKitError || visionKitDetectionInProgress}}">{{lang.measure_hip_btn || 'Measure Hip'}}</button>
+    <button type="default" class="measure-btn" bindtap="measureNeck" disabled="{{!imageLoaded || !visionKitReady || visionKitError || visionKitDetectionInProgress}}">{{lang.measure_neck_btn || 'Measure Neck'}}</button>
   </view>
 
   <view wx:if="{{measurementResult}}" class="result-section">
