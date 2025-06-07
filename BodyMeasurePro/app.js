@@ -40,6 +40,9 @@ const enStrings = {
   "visionkit_fallback_line": "(Default Line)",
   "visionkit_detection_success": "Body features detected!",
   "visionkit_detection_failed": "No body features detected. Using default lines.",
+  "canvas_init_failed": "Canvas setup failed. Cannot proceed.",
+  "canvas_getimagedata_invalid_dims": "Invalid image draw dimensions for analysis.",
+  "load_image_failed_toast": "Failed to load image details.",
 
   "measure_nav_title": "Simulated Measurement",
   "measure_chest_btn": "Measure Chest",
@@ -102,6 +105,9 @@ const zhStrings = {
   "visionkit_fallback_line": "(默认标线)",
   "visionkit_detection_success": "身体特征已检测！",
   "visionkit_detection_failed": "未检测到身体特征，将使用默认标线。",
+  "canvas_init_failed": "画布设置失败，无法继续。",
+  "canvas_getimagedata_invalid_dims": "图像分析的绘制尺寸无效。",
+  "load_image_failed_toast": "图像详情加载失败。",
 
   "measure_nav_title": "模拟测量",
   "measure_chest_btn": "测量胸围",
