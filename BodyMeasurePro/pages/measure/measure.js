@@ -108,10 +108,13 @@ Page({
       this.setData({ visionKitSession: session });
 
       session.on('error', error => {
-        console.error('VisionKit Session Error:', error);
+        // console.error('VisionKit Session Error:', error);
+        console.error('VisionKit Session Error (full object):', JSON.stringify(error)); // Enhanced log
         this.setData({
+          visionKitError: true, // Use boolean true for error state
           visionKitUserMessage: (this.data.lang && this.data.lang.visionkit_error_toast) || 'VisionKit error.',
-          visionKitReady: false, visionKitError: true, visionKitDetectionInProgress: false
+          visionKitReady: false,
+          visionKitDetectionInProgress: false
         });
         wx.hideLoading();
       });
@@ -198,7 +201,6 @@ Page({
         });
         return;
       }
-      // console.log("Canvas element actual dimensions via selectorQuery:", node.width, node.height);
       // Store the actual runtime dimensions of the canvas element.
       this.setData({
           canvasElementWidth: node.width,
@@ -265,12 +267,25 @@ Page({
             imagePath: path
           });
           ctx.drawImage(path, offsetX, offsetY, drawWidth, drawHeight);
-          ctx.draw();
-          this.setData({ imageLoaded: true });
-          if (this.data.visionKitReady) { this.detectBodyFeaturesFromCanvas(); }
-          else {
-            // console.log("Image loaded, but VisionKit not ready yet for detection trigger from loadImageOntoCanvas.");
-          }
+          // Use callback for ctx.draw to ensure drawing is complete before further actions
+          ctx.draw(false, () => {
+            console.log("Canvas draw callback: Image has been drawn onto canvas."); // Retained log
+            this.setData({ imageLoaded: true });
+
+            if (this.data.visionKitReady) {
+              console.log("VisionKit is ready, preparing to call detectBodyFeaturesFromCanvas with a short delay (for testing timing sensitivity)."); // Retained log for this test
+
+              // Modified part: Added setTimeout
+              setTimeout(() => {
+                console.log("Executing detectBodyFeaturesFromCanvas after 100ms delay (timing test)."); // New log for this test
+                this.detectBodyFeaturesFromCanvas();
+              }, 100);
+
+            } else {
+              // Retained log
+              console.log("Image drawn, but VisionKit not ready yet. Waiting for VisionKit to complete initialization if it hasn't already.");
+            }
+          });
         },
         fail: (err) => {
             console.error("Failed to get image info:", err);
@@ -283,17 +298,11 @@ Page({
 
   detectBodyFeaturesFromCanvas() {
     if (!this.data.visionKitReady || !this.data.imageLoaded) {
-      // console.log("detectBodyFeaturesFromCanvas skipped: VK ready?", this.data.visionKitReady, "Image loaded?", this.data.imageLoaded);
       return;
     }
     if (this.data.visionKitDetectionInProgress) {
-      // console.log("detectBodyFeaturesFromCanvas skipped: Detection already in progress.");
       return;
     }
-
-    // --- Diagnostic Logging (commented out) ---
-    // console.log("--- Preparing for canvasGetImageData in detectBodyFeaturesFromCanvas ---");
-    // ...
 
     // CRITICAL PRE-CHECK: Verify that the calculated drawWidth and drawHeight (which will be
     // used as width and height for wx.canvasGetImageData) are positive and valid.
@@ -324,19 +333,23 @@ Page({
       x: this.data.canvasOffsetX, y: this.data.canvasOffsetY,
       width: this.data.canvasDrawWidth, height: this.data.canvasDrawHeight,
       success: (res) => {
-        // console.log("canvasGetImageData success. Width:", res.width, "Height:", res.height);
-        if (this.data.visionKitSession) {
+        console.log("wx.canvasGetImageData SUCCESS: res.width =", res.width, ", res.height =", res.height, ", res.data.buffer.byteLength =", res.data.buffer.byteLength);
+        const frameBuffer = res.data.buffer;
+
+        if (this.data.visionKitSession && this.data.visionKitReady) {
           this.data.visionKitSession.detectBody({
-            frameBuffer: res.data.buffer, width: res.width, height: res.height,
-            scoreThreshold: 0.3, sourceType: 1
+            frameBuffer: frameBuffer, width: res.width, height: res.height,
+            scoreThreshold: 0.5,
+            sourceType: 1
           });
         } else {
-            this.setData({ visionKitDetectionInProgress: false, visionKitUserMessage: 'VK Session lost.', visionKitError: true });
+            console.error("VisionKit session not available or not ready for detectBody at the time of canvasGetImageData success.");
+            this.setData({ visionKitDetectionInProgress: false, visionKitUserMessage: 'VK Session lost or not ready.', visionKitError: true });
             wx.hideLoading();
         }
       },
       fail: (err) => {
-        console.error("wx.canvasGetImageData failed:", err);
+        console.error("wx.canvasGetImageData FAIL: Full error object:", JSON.stringify(err));
         this.setData({
             visionKitUserMessage: (this.data.lang && this.data.lang.visionkit_getimagedata_failed) || 'Failed to get image data.',
             visionKitDetectionInProgress: false, visionKitError: true
@@ -419,14 +432,52 @@ Page({
     ctx.draw(true);
   },
 
-  _finalizeMeasurement(typeKey, rawValue) { /* ... (content as before) ... */ },
+  _finalizeMeasurement(typeKey, rawValue) {
+    const measurementType = app.globalData.locales[typeKey] || typeKey.replace('measurement_', '');
+    const suffix = app.globalData.locales.measure_simulated_value_suffix || '(Simulated)';
+    const resultString = `${measurementType}: ${rawValue}cm ${suffix}`;
+    this.setData({
+      measurementResult: resultString,
+      lastMeasurementTypeKey: typeKey,
+      lastMeasurementRawValue: rawValue
+    });
+    let history = wx.getStorageSync('measurementHistory') || [];
+    const measurementData = { typeKey: typeKey, value: rawValue, timestamp: new Date().toISOString() };
+    history.unshift(measurementData);
+    wx.setStorageSync('measurementHistory', history);
+  },
+
   measureChest: function() { if (!this.data.imageLoaded || !this.data.visionKitReady || this.data.visionKitError || this.data.visionKitDetectionInProgress) return; this._drawMeasurementLine('measurement_chest'); this._finalizeMeasurement('measurement_chest', "90"); },
   measureWaist: function() { if (!this.data.imageLoaded || !this.data.visionKitReady || this.data.visionKitError || this.data.visionKitDetectionInProgress) return; this._drawMeasurementLine('measurement_waist'); this._finalizeMeasurement('measurement_waist', "75"); },
   measureHip: function() { if (!this.data.imageLoaded || !this.data.visionKitReady || this.data.visionKitError || this.data.visionKitDetectionInProgress) return; this._drawMeasurementLine('measurement_hip'); this._finalizeMeasurement('measurement_hip', "95"); },
   measureNeck: function() { if (!this.data.imageLoaded || !this.data.visionKitReady || this.data.visionKitError || this.data.visionKitDetectionInProgress) return; this._drawMeasurementLine('measurement_neck'); this._finalizeMeasurement('measurement_neck', "38"); },
 
-  loadLangData: function() { /* ... (content as before) ... */ },
-  drawDetectedKeypoints() { /* ... (content as before) ... */ },
+  loadLangData: function() {
+    this.setData({ lang: app.globalData.locales });
+    const navBarTitle = (app.globalData.locales && app.globalData.locales.measure_nav_title)
+                        ? app.globalData.locales.measure_nav_title : 'Simulated Measurement';
+    wx.setNavigationBarTitle({ title: navBarTitle });
+    if (this.data.measurementResult && this.data.lastMeasurementTypeKey && this.data.lastMeasurementRawValue) {
+        const measurementType = app.globalData.locales[this.data.lastMeasurementTypeKey] || this.data.lastMeasurementTypeKey.replace('measurement_', '');
+        const suffix = app.globalData.locales.measure_simulated_value_suffix || '(Simulated)';
+        const resultString = `${measurementType}: ${this.data.lastMeasurementRawValue}cm ${suffix}`;
+        this.setData({ measurementResult: resultString });
+    }
+  },
+
+  drawDetectedKeypoints() {
+      if (!this.data.visionKitKeypoints || !this.canvasCtx || !this.data.imageLoaded) return;
+      const ctx = this.canvasCtx;
+      ctx.drawImage(this.data.imagePath, this.data.canvasOffsetX, this.data.canvasOffsetY, this.data.canvasDrawWidth, this.data.canvasDrawHeight);
+      this.data.visionKitKeypoints.forEach(kp => {
+          ctx.beginPath();
+          ctx.arc(kp.x, kp.y, 3, 0, 2 * Math.PI);
+          ctx.setFillStyle('yellow');
+          ctx.fill();
+      });
+      ctx.draw(true);
+  },
+
   onShow: function () { this.loadLangData(); },
   onReady: function () {},
   onHide: function () {},
@@ -439,5 +490,9 @@ Page({
   },
   onPullDownRefresh: function () {},
   onReachBottom: function () {},
-  onShareAppMessage: function () { /* ... (content as before) ... */ }
+  onShareAppMessage: function () {
+    const appName = (app.globalData.locales && app.globalData.locales.appName) ? app.globalData.locales.appName : 'BodyMeasurePro';
+    const pageTitle = (app.globalData.locales && app.globalData.locales.measure_nav_title) ? app.globalData.locales.measure_nav_title : 'Simulated Measurement';
+    return { title: `${pageTitle} - ${appName}`, path: `/pages/measure/measure?imagePath=${this.data.imagePath}` };
+  }
 });
